@@ -33,6 +33,7 @@ rules_dict = dict()
 for rule in luggage_rules_data:
     new_rule = dict()
     rule = rule.strip('.')
+    # breakpoint()
     split = rule.split(' contain ')
     outer_bag = split[0][:-5]
 
@@ -43,9 +44,16 @@ for rule in luggage_rules_data:
         for contained in contained_bags_list:
             # only single digit numbers of bags so easy to parse
             # first digit is amount
-            amount = contained[0]
-            name = contained[2:-5]
-            new_rule[name] = int(amount)
+            amount = int(contained[0])
+            # account for bag or bags
+            # No ternary in  python :(
+            bag_length = None
+            if contained[-1] == 's':
+                bag_length = -5
+            else:
+                bag_length = -4
+            name = contained[2:bag_length]
+            new_rule[name] = amount
 
     rules_dict[outer_bag] = new_rule
 
@@ -61,3 +69,6 @@ print(rules_dict)
 # if rule contains shiny gold bag, + 1 and continue
 
 # This should/could be recursive.  Or can use while rule not empty
+
+# This might have infinite loops.  Continue when we get there
+# could be a recursive base case
