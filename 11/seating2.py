@@ -73,15 +73,34 @@ def seatway(data):
                 neighbors = 0
 
                 # since we added the border, and limited our loops, can ignore edges
+                # for new rules, if i,k is floor, keep looking that direction until
+                # seat or 'x'
+
                 for i in range(-1, 2, 1):
                     # print(i)
                     for k in range(-1, 2, 1):
-                        if buffer[current][y + i][x + k] == '#':
-                            # don't count self
+                        # don't count self
                             if i == 0 and k == 0:
                                 continue
-                            else:
+                            if buffer[current][y + i][x + k] == '#':
                                 neighbors += 1
+                            # if it's floor, look further
+                            if buffer[current][y + i][x + k] == '.':
+                                new_i = i
+                                new_k = k
+                                while buffer[current][y + new_i][x + new_k] != 'x':
+                                    new_i += i
+                                    new_k += k
+
+                                    if buffer[current][y + new_i][x + new_k] == '#':
+                                        neighbors += 1
+                                        break
+                                    if buffer[current][y + new_i][x + new_k] == 'L':
+                                        break
+
+                                    # continue if '.'
+
+
 
                 # print(f'neighbors: {neighbors}')
 
@@ -95,7 +114,7 @@ def seatway(data):
 
                 if position == '#':
                     # breakpoint()
-                    if neighbors >= 4:
+                    if neighbors >= 5:
                         # print("more than 3")
                         buffer[back][y][x] = 'L'
                     else:
