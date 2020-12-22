@@ -27,7 +27,7 @@ for i in range(len(numbers) - 1):
 last_number = numbers[-1]
 print(last_number)
 
-while turn < 2020:
+while turn < 30000000:
     # process new last spoken number
     if last_number not in spoken:
         spoken.add(last_number)
@@ -43,5 +43,4 @@ while turn < 2020:
 
 
 
-
-    print(last_number)
+print(last_number)
