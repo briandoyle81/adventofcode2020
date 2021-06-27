@@ -1,8 +1,20 @@
-with open('data.txt', 'r') as file:
+with open('test_data.txt', 'r') as file:
     data = file.read().split('\n')
 
 # cut trailing newline
 data.pop(-1)
+
+
+ON = '#'
+OFF = '.'
+
+MAX_NEIGHBORS = 3
+MIN_NEIGHBORS = 2
+
+GENESIS_NEIGHBORS = 3
+
+START_WIDTH = len(data[0])
+
 
 ## NOW IN 4D!!!!!!!
 
@@ -15,7 +27,7 @@ MIN_NEIGHBORS = 2
 
 GENESIS_NEIGHBORS = 3
 
-class TripleConway:
+class QuadrupleConway:
     def __init__(self, data):
         self.buffer = []
 
@@ -38,19 +50,20 @@ class TripleConway:
         for y in range(len(data)):
             for x in range(len(data[0])):
                 if data[y][x] == ON:
-                    coords = f"{x},{y},{z},{w}"
+                    # coords = f"{x},{y},{z},{w}"
+                    # strings are slow, arrays are not hashable.  Tuples are! (Or not really)
+                    # but still better solution
+                    coords = (x, y, z, w)
                     grid_set.add(coords)
-
 
         return grid_set
 
     # takes a string cell and looks for neighbors in the set
-    def count_alive_and_get_dead_neighbors(self, cell):
-        coords = cell.split(',')
-        x = int(coords[0])
-        y = int(coords[1])
-        z = int(coords[2])
-        w = int(coords[3])
+    def count_alive_and_get_dead_neighbors(self, cell, collect_dead=True):
+        x = cell[0]
+        y = cell[1]
+        z = cell[2]
+        w = cell[3]
 
         count = 0
         dead_neighbors = set()
@@ -62,10 +75,10 @@ class TripleConway:
                         if i == 0 and k == 0 and m == 0 and p == 0:
                             continue
                         else:
-                            coords = f"{x-i},{y-k},{z-m},{w-p}"
+                            coords = (x-i, y-k, z-m, w-p)
                             if coords in self.buffer[self.active]:
                                 count += 1
-                            else:
+                            elif collect_dead:
                                 dead_neighbors.add(coords)
 
         # print(count)
@@ -75,7 +88,6 @@ class TripleConway:
     def step_simulation(self):
         active_buffer = self.buffer[self.active]
         # back_buffer = self.buffer[self.back]
-
 
         all_dead_neighbors = set()
 
@@ -91,7 +103,7 @@ class TripleConway:
         # genesis
         for dead in all_dead_neighbors:
             # don't need dead neighbors here, optimize?
-            dead_list, count = self.count_alive_and_get_dead_neighbors(dead)
+            dead_list, count = self.count_alive_and_get_dead_neighbors(dead, False)
 
             if count == GENESIS_NEIGHBORS:
                 self.buffer[self.back].add(dead)
@@ -123,7 +135,7 @@ class TripleConway:
 
         return len(self.buffer[self.active])
 
-instance = TripleConway(data)
+instance = QuadrupleConway(data)
 # dead, count = instance.count_alive_and_get_dead_neighbors('2,1,0')
 
 # print(dead, count)
@@ -339,3 +351,142 @@ print("Result", instance.iterate_n_times_and_return_alive(6))
 #             self.buffer = 1
 #         else:
 #             self.buffer = 0
+
+
+
+
+
+
+
+
+
+
+# Try old-fashioned array method, just make enough space for 6 iterations
+
+# This is much slower!!!
+
+# class QuadConwayArray:
+#     def __init__(self, data, iterations):
+
+#         # hardcode 4d
+
+#         four_d_matrix = [[[[]]]]
+
+#         size = START_WIDTH + (iterations * 2) + 2 # probably don't need extra
+
+#         self.buffer = []
+
+#         self.buffer.append([[[ ['.'] * size for i in range(size)] for k in range(size)] for m in range(size)])
+#         self.buffer.append([[[ ['.'] * size for i in range(size)] for k in range(size)] for m in range(size)])
+
+#         # print(self.buffer[0])
+
+#         middle = int(size / 2)
+
+#         write_start = middle - int(START_WIDTH / 2)
+
+#         self.active = 0
+#         self.back = 1
+
+#         self.load_grid(data, write_start)
+#         # print(self.buffer[0])
+
+#     def load_grid(self, data, write_start):
+#         debug_count = 0
+#         z = 0
+#         w = 0
+#         # y first
+#         for y in range(len(data)):
+#             for x in range(len(data[0])):
+#                 if data[y][x] == ON:
+#                     debug_count += 1
+#                     # REVERSING HERE to deal with expected xyzw
+#                     # offset to put in the middle
+#                     self.buffer[self.active][x + write_start][y + write_start][z + write_start][w + write_start] = ON
+
+
+#         print("Starting count: ", debug_count)
+
+
+#     # takes a string cell and looks for neighbors in the grid
+#     def count_neighbors(self, cell):
+#         x = cell[0]
+#         y = cell[1]
+#         z = cell[2]
+#         w = cell[3]
+
+#         # print("Coords: ", x, y, z, w)
+
+#         count = 0
+#         limit = len(self.buffer[self.active])
+
+#         for i in range(-1, 2, 1):
+#             for k in range(-1, 2, 1):
+#                 for m in range(-1, 2, 1):
+#                     for p in range(-1, 2, 1):
+#                         if i == 0 and k == 0 and m == 0 and p == 0:
+#                             continue
+#                         elif x-i < 0 or y-k < 0 or z-m < 0 or w-p < 0:
+#                             continue
+#                         elif x-i >= limit or y-k >= limit or z-m >= limit or w-p >= limit:
+#                             continue
+#                         else:
+#                             coords = (x-i, y-k, z-m, w-p)
+#                             if self.buffer[self.active][x-i][y-k][z-m][w-p] == ON:
+#                                 count += 1
+
+#         # print(count)
+
+#         return count
+
+#     def step_simulation(self):
+#         print("Active: ", self.active)
+#         active_buffer = self.buffer[self.active]
+#         # back_buffer = self.buffer[self.back]
+
+#         count_this_step = 0
+
+#         # add still alive to back buffer
+#         for i in range(len(active_buffer)):
+#             for k in range(len(active_buffer)):
+#                 for m in range(len(active_buffer)):
+#                     for p in range(len(active_buffer)):
+#                         count = self.count_neighbors((i, k, m, p))
+
+#                         if active_buffer[i][k][m][p] == ON:
+#                             if count >= MIN_NEIGHBORS and count <= MAX_NEIGHBORS:
+#                                 self.buffer[self.back][i][k][m][p] = ON
+#                                 count_this_step += 1
+#                             else:
+#                                 self.buffer[self.back][i][k][m][p] = OFF
+#                         else: # == OFF
+#                             if count == GENESIS_NEIGHBORS:
+#                                 self.buffer[self.back][i][k][m][p] = ON
+#                                 count_this_step += 1
+
+
+#         # swap buffers at end
+#         if self.active == 0:
+#             self.active = 1
+#             self.back = 0
+#         else:
+#             self.active = 0
+#             self.back = 1
+
+#         return count_this_step
+
+#     def iterate_n_times_and_return_alive(self, n):
+
+#         final_count = 0
+
+#         for i in range(n):
+#             # print(i, len(self.buffer[self.active]))
+#             final_count = self.step_simulation()
+
+#             print("Count", final_count)
+
+#         return final_count
+
+
+# instance2 = QuadConwayArray(data, 6)
+# instance2.iterate_n_times_and_return_alive(6)
