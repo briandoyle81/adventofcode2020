@@ -1,3 +1,5 @@
+# https://github.com/rbusquet/advent-of-code/blob/main/2020/day_17/day_17.py
+
 import timeit
 
 start_time = timeit.default_timer()
@@ -135,7 +137,7 @@ class QuadrupleConway:
             # print(i, len(self.buffer[self.active]))
             self.step_simulation()
 
-            print("Count", len(self.buffer[self.active]))
+            # print("Count", len(self.buffer[self.active]))
 
         return len(self.buffer[self.active])
 
@@ -144,7 +146,7 @@ instance = QuadrupleConway(data)
 
 # print(dead, count)
 
-print("Result", instance.iterate_n_times_and_return_alive(10))
+print("Result", instance.iterate_n_times_and_return_alive(20))
 print(timeit.default_timer() - start_time)
 
 
