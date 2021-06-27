@@ -1,4 +1,8 @@
-with open('test_data.txt', 'r') as file:
+import timeit
+
+start_time = timeit.default_timer()
+
+with open('data.txt', 'r') as file:
     data = file.read().split('\n')
 
 # cut trailing newline
@@ -140,7 +144,8 @@ instance = QuadrupleConway(data)
 
 # print(dead, count)
 
-print("Result", instance.iterate_n_times_and_return_alive(6))
+print("Result", instance.iterate_n_times_and_return_alive(10))
+print(timeit.default_timer() - start_time)
 
 
 
